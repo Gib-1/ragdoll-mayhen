@@ -1,0 +1,16 @@
+name: Verify static game
+on:
+  push:
+  pull_request:
+jobs:
+  syntax-and-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: for f in src/*.js tests/*.mjs; do node --check "$f"; done
+      - name: Project structure
+        run: node --test tests/structure.test.mjs
