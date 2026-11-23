@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101828" />
+  <meta name="description" content="Ragdoll Mayhem — a bright 3D physics sandbox with crash-test dummies, interactive props and gravity experiments." />
+  <title>RAGDOLL MAYHEM — 3D Physics Sandbox</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+  {"imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "rapier": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.18.0/rapier.mjs"
+  }}
+  </script>
+</head>
+<body>
+  <div id="game" aria-label="3D physics sandbox"></div>
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon">RM<span>3D</span></div><div><strong>RAGDOLL <span>MAYHEM</span></strong><small>PHYSICS SANDBOX <em>• ALPHA 0.1</em></small></div></div>
+    <div class="top-actions">
+      <span class="chip stats" id="fps">60 FPS</span>
+      <span class="chip stats" id="objectCount">0 OBJECTS</span>
+      <button type="button" class="top-btn" id="helpBtn" title="Controls">? <span>HELP</span></button>
+      <button type="button" class="top-btn accent" id="resetBtn" title="Reset sandbox">↻ <span>RESET</span></button>
+    </div>
+  </header>
+  <aside class="sidebar">
+    <div class="section-label">SPAWN OBJECTS</div>
+    <div class="spawn-list">
+      <button class="spawn-item selected" data-spawn="dummy"><span class="preview dummy-icon">◉</span><span class="item-copy"><b>TEST DUMMY</b><small>Articulated ragdoll</small></span><span class="key">1</span></button>
+      <button class="spawn-item" data-spawn="cube"><span class="preview cube-icon">⬡</span><span class="item-copy"><b>PHYSICS CUBE</b><small>Stackable crate</small></span><span class="key">2</span></button>
+      <button class="spawn-item" data-spawn="ball"><span class="preview ball-icon">●</span><span class="item-copy"><b>BOUNCY BALL</b><small>High restitution</small></span><span class="key">3</span></button>
+      <button class="spawn-item" data-spawn="barrel"><span class="preview barrel-icon">▣</span><span class="item-copy"><b>ROUND BARREL</b><small>Roll and tumble</small></span><span class="key">4</span></button>
+      <button class="spawn-item" data-spawn="plank"><span class="preview plank-icon">▬</span><span class="item-copy"><b>BUILDING BEAM</b><small>Long rigid plank</small></span><span class="key">5</span></button>
+      <button class="spawn-item" data-spawn="ramp"><span class="preview ramp-icon">◢</span><span class="item-copy"><b>RAMP</b><small>Angled platform</small></span><span class="key">6</span></button>
+    </div>
+    <button id="spawnBtn" class="primary-btn">＋ SPAWN SELECTED</button>
+    <div class="sidebar-divider"></div>
+    <div class="section-label">SANDBOX TOOLS</div>
+    <div class="tool-list">
+      <button class="tool selected" data-tool="grab"><span>↗</span><span>GRAB / DRAG</span><kbd>G</kbd></button>
+      <button class="tool" data-tool="push"><span>↝</span><span>IMPULSE TOOL</span><kbd>F</kbd></button>
+      <button class="tool" data-tool="freeze"><span>❄</span><span>FREEZE TOOL</span><kbd>R</kbd></button>
+      <button class="tool" data-tool="delete"><span>⌫</span><span>REMOVE OBJECT</span><kbd>X</kbd></button>
+    </div>
+    <div class="sidebar-footer">Build. Experiment. Repeat.<span>NO DAMAGE • JUST PHYSICS</span></div>
+  </aside>
+  <div class="rightpanel">
+    <div class="panel-title">WORLD SETTINGS <span>⚙</span></div>
+    <div class="setting"><div class="setting-row"><span>GRAVITY</span><b id="gravValue">9.8 m/s²</b></div><input type="range" id="gravity" min="-18" max="22" step="0.5" value="9.8" aria-label="Gravity magnitude"/><div class="scale"><small>REVERSE</small><small>EARTH</small><small>HIGH</small></div></div>
+    <div class="setting"><div class="setting-row"><span>TIME SPEED</span><b id="timeValue">1.00×</b></div><input type="range" id="timeScale" min="0.10" max="2" step="0.05" value="1" aria-label="Simulation speed"/><div class="scale"><small>SLOW MO</small><small>NORMAL</small><small>FAST</small></div></div>
+    <div class="world-actions"><button id="pauseBtn">Ⅱ PAUSE</button><button id="clearBtn">⌦ CLEAR PROPS</button></div>
+    <div class="panel-note"><span class="live-dot"></span><span id="status">PHYSICS ENGINE READY</span></div>
+  </div>
+  <div class="crosshair" id="crosshair" aria-hidden="true">＋</div>
+  <div class="bottom-bar">
+    <div class="keyhelp"><span><kbd>DRAG EMPTY SPACE</kbd> ORBIT</span><span><kbd>DRAG OBJECT</kbd> GRAB</span><span><kbd>WASD</kbd> PAN</span><span><kbd>SCROLL</kbd> ZOOM</span></div>
+    <div class="hint" id="hint">CLICK AN OBJECT TO INTERACT</div>
+  </div>
+  <div class="mobilebar"><button id="mobileSpawn">＋ SPAWN</button><button id="mobileGrab">↗ GRAB</button><button id="mobilePush">↝ PUSH</button><button id="mobilePause">Ⅱ PAUSE</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div id="boot" class="screen-overlay">
+    <div class="boot-card"><div class="boot-eyebrow">WELCOME TO THE LAB</div><div class="boot-logo">RAGDOLL<br><span>MAYHEM</span></div><p>Build your own physics playground. Spawn articulated dummies, stack objects, change gravity and experiment.</p><div class="boot-pills"><span>3D PHYSICS</span><span>JOINTED DUMMIES</span><span>SANDBOX TOOLS</span></div><button id="startBtn" class="play-btn" disabled>LOADING PHYSICS…</button><small class="boot-message" id="bootMessage">Loading rendering and physics modules…</small></div>
+  </div>
+  <div id="help" class="screen-overlay hidden" role="dialog" aria-modal="true" aria-label="Controls"><div class="help-card"><button class="close-help" id="closeHelp" aria-label="Close">×</button><h2>HOW TO PLAY</h2><p>Drag empty space to orbit. Drag a dummy limb or prop to pull it with the physics grabber. Use the object list to add new items.</p><div class="help-grid"><div><b>Mouse / touch</b><span>Orbit and grab</span></div><div><b>Mouse wheel / pinch</b><span>Zoom</span></div><div><b>W A S D</b><span>Move camera target</span></div><div><b>1 – 6</b><span>Spawn objects</span></div><div><b>G / F / R / X</b><span>Tools</span></div><div><b>Space</b><span>Pause simulation</span></div><div><b>Esc</b><span>Cancel selection</span></div><div><b>Delete</b><span>Remove selected object</span></div></div><button id="gotIt" class="primary-btn">BACK TO SANDBOX</button></div></div>
+  <div id="portrait">Rotate your device to landscape for the best sandbox experience.</div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
